@@ -1,13 +1,4 @@
-/*
- ESP8266 Blink by Simon Peter
- Blink the blue LED on the ESP-01 module
- This example code is in the public domain
- 
- The blue LED on the ESP-01 module is connected to GPIO1 
- (which is also the TXD pin; so we cannot use Serial.print() at the same time)
- 
- Note that this sketch uses LED_BUILTIN to find the pin with the internal LED
-*/
+#include<avr/sleep.h> 
 uint8_t ACTIVATE_A = 2;
 uint8_t ACTIVATE_B = 5;
 uint8_t WIRE_CONTACT = 4;
@@ -33,17 +24,30 @@ void setup() {
   pinMode(ACTIVATE_A, INPUT);
   pinMode(ACTIVATE_B, INPUT);
   pinMode(WIRE_CONTACT, INPUT);
+
+  // enable pin change interrupt for input pins
+  cli();
+  PCICR |= _BV(PCIE2);
+  PCMSK2 |= _BV(PCINT18) | _BV(PCINT20) | _BV(PCINT21);
+  sei();
+
+  show_state();
 }
 
-// the loop function runs over and over again forever
-void loop() {
+
+ISR(PCINT2_vect) {
   // make alarm if hot wire is touched
   digitalWrite(BUZZER, hotwire_touched());
-  
-  //state_machine();
-  //show_state();
+  state_machine();
+  show_state();
+}
+// the loop function runs over and over again forever
+void loop() {
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // den tiefsten Schlaf auswählen PWR_DOWN
+  sleep_enable(); // sleep mode einschalten
+  sleep_mode(); // in den sleep mode gehen
   // debug code
-  led(hotwire_touched(), activate_A_touched(), activate_B_touched());
+  //led(hotwire_touched(), activate_A_touched(), activate_B_touched());
 }
 
 void state_machine() {
