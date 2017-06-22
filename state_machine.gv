@@ -1,0 +1,21 @@
+digraph HotWireGame {
+  game_over_A;
+  Game_A;
+  Game_B;
+  game_over_B;
+  Start -> Game_A;
+
+  Game_A -> game_over_A [label="hotwire_touched"]
+  game_over_A -> Game_A [label="activate_A_touched"]
+
+  Game_B -> game_over_B [label="hotwire_touched"]
+  game_over_B -> Game_B [label="activate_B_touched"]
+
+
+  Game_A -> Game_B [label="activate_B_touched"]
+  Game_B -> Game_A [label="activate_A_touched"]
+
+
+  { rank=same; Game_A; game_over_A; Game_B; game_over_B}
+}
+
